@@ -146,12 +146,6 @@ Essential productivity scripts linked to `~/Projects/scripts/`:
 | `vpnL` / `vpnTHM` | Connect to VPN profiles |
 | `wifipasy` | Retrieve saved WiFi passwords |
 
-**GNOME & UI:**
-| Script | Description |
-|--------|-------------|
-| `ghostty-toggle` | Toggle/focus Ghostty terminal window |
-| `ghostty-here` | Open Ghostty in current directory |
-| `hide` | Hide/show windows or panels |
 
 ...and many more! Browse [bashScripts/](bashScripts/) for the full collection.
 
