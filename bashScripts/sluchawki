@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Define the MAC address of your Bluetooth device
+# edifier 800
+# MAC_ADDRESS="60:F4:3A:6A:F7:D3"
+# edifier 820
+MAC_ADDRESS="CC:14:BC:1C:E3:FE"
+# Check if the device is currently connected
+IS_CONNECTED=$(bluetoothctl info "$MAC_ADDRESS" | grep "Connected: yes")
+
+# Start the Bluetooth control module
+bluetoothctl << EOF
+power on
+agent on
+default-agent
+EOF
+
+if [ -z "$IS_CONNECTED" ]; then
+    echo "Device is disconnected, attempting to connect..."
+    bluetoothctl << EOF
+    scan on
+    echo "Scanning for devices... Please wait."
+    sleep 2  # Wait a bit for scanning (adjust time as needed)
+    scan off
+    echo "Attempting to pair with $MAC_ADDRESS"
+    pair $MAC_ADDRESS
+    trust $MAC_ADDRESS
+    connect $MAC_ADDRESS
+EOF
+    echo "Connection attempt to $MAC_ADDRESS complete."
+else
+    echo "Device is connected, attempting to disconnect..."
+    bluetoothctl << EOF
+    disconnect $MAC_ADDRESS
+EOF
+    echo "Disconnection attempt from $MAC_ADDRESS complete."
+fi
+

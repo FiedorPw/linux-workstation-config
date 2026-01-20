@@ -1,0 +1,13 @@
+#!/bin/bash
+
+TEMP_SCREENSHOT_DIR="$HOME/my_project/Inżynierka/Screenshots"
+
+# Create the temporary directory if it doesn't exist
+mkdir -p "$TEMP_SCREENSHOT_DIR"
+
+# Set the new screenshot location
+alias gnome-screenshot="gnome-screenshot -f $TEMP_SCREENSHOT_DIR/screenshot_$(date +%Y%m%d%H%M%S).png"
+
+echo "Screenshot directory temporarily changed to $TEMP_SCREENSHOT_DIR"
+echo "This will revert to the default on the next system restart."
+

@@ -1,0 +1,2 @@
+#!/bin/bash
+curl rate.sx/btc@10d

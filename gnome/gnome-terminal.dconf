@@ -1,0 +1,9 @@
+[legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
+background-color='rgb(0,0,0)'
+background-transparency-percent=11
+default-size-columns=80
+font='MesloLGS NF 12'
+foreground-color='rgb(0,255,0)'
+scrollbar-policy='never'
+use-system-font=false
+use-theme-colors=false

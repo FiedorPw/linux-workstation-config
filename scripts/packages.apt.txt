@@ -1,0 +1,36 @@
+# --- System & Core ---
+zsh
+git
+curl
+wget
+stow
+build-essential
+xinput
+xdg-utils
+grc
+htop
+btop
+
+# --- Modern CLI (The Rizz) ---
+bat
+eza
+ripgrep
+fd-find
+neofetch
+
+# --- Hacking & Network ---
+nmap
+rustscan
+wireshark
+# metasploit-framework (Excluded per request)
+
+# --- Programming ---
+python3
+python3-pip
+python3-venv
+python3-pygments
+ruby-full
+pipx
+uv
+
+# --- Note: GUI Apps (VSCode, Obsidian) are handled in install.sh via Snap ---

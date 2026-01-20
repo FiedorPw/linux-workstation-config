@@ -1,0 +1,14 @@
+#/bin/bash
+# Extract the ID of the Elan Touchpad
+touchpad_id=$(xinput list | grep "Elan Touchpad" | awk -F'id=' '{print $2}' | awk '{print $1}')
+
+# Check if the ID was found
+if [ -z "$touchpad_id" ]; then
+    echo "Elan TrackPoint not found."
+    exit 1
+fi
+
+# disable trackpad
+xinput disable $touchpad_id 
+
+# echo "Coordinate Transformation Matrix set for Elan TrackPoint with ID $trackpoint_id."

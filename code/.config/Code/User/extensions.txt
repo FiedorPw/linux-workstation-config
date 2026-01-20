@@ -1,0 +1,4 @@
+ginfuru.ginfuru-better-solarized-dark-theme
+github.copilot
+github.copilot-chat
+vscodevim.vim

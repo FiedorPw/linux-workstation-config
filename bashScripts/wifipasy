@@ -1,0 +1,4 @@
+#!/bin/bash
+sudo grep psk= /etc/NetworkManager/system-connections/* | cut -f5- -d/ 
+
+

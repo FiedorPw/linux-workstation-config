@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# copy last n files from downloads to current folder 
+
+
+
+# Default value for n
+n=1
+
+# Check if user provided an argument for the number of files
+if [ $# -eq 1 ]; then
+    n=$1
+fi
+
+# Get the path to the Downloads folder
+downloads_dir="$HOME/Downloads"
+
+# Check if Downloads directory exists
+if [ ! -d "$downloads_dir" ]; then
+    echo "Downloads directory does not exist."
+    exit 1
+fi
+
+# Find the last n files in the Downloads folder and copy them to the current directory
+find "$downloads_dir" -type f -printf '%T@ %p\n' | sort -n | tail -n "$n" | awk '{print $2}' | while read file; do
+    cp "$file" .
+    echo "Copied $file"
+done
+
+echo "Copied $n file(s)"
+

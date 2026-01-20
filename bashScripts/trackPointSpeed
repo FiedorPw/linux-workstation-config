@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Ensure that the script is called with two arguments
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <matrix_value_1> <matrix_value_2>"
+    exit 1
+fi
+
+# Extract the ID of the Elan TrackPoint
+trackpoint_id=$(xinput list | grep "Elan TrackPoint" | awk -F'id=' '{print $2}' | awk '{print $1}')
+touchscreen_id=$(xinput list | grep "Raydium Corporation Raydium Touch System" | awk -F'id=' '{print $2}' | awk '{print $1}')
+
+# Check if the ID was found
+if [ -z "$trackpoint_id" ]; then
+    echo "Elan TrackPoint not found."
+    exit 1
+fi
+
+if [ -z "touchscreen_id" ]; then
+    echo "touchscreen_id not found"
+    exit 1
+fi
+
+# Set the Coordinate Transformation Matrix for the trackpoint
+xinput --set-prop $trackpoint_id "Coordinate Transformation Matrix" $1 0 0 0 $2 0 0 0 1
+xinput --set-prop $trackpoint_id "libinput Scrolling Pixel Distance" 10
+
+# xinput disable $touchscreen_id
+
+ echo "Coordinate Transformation Matrix set for Elan TrackPoint with ID $trackpoint_id."
+

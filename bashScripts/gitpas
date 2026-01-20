@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Read the string from the file
+exec cat /home/fiedor/Projects/kredki/github | copy
+exit 1
+# Export the string as a global environment variable
+# export GITPAS

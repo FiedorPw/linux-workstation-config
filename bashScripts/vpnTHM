@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo openvpn /home/kolaj/my_project/VPN/THM.ovpn 

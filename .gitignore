@@ -1,0 +1,27 @@
+# Sensitive data
+*_backup.json
+*.backup
+*.bak
+*.swp
+*.swo
+*~
+
+# Private SSH configs
+zed/.config/zed/settings.json.local
+
+# Personal tokens/credentials (never commit these)
+.github_token
+*.token
+*.key
+*.pem
+credentials/
+secrets/
+
+# Cache and temp files
+.cache/
+*.log
+*.tmp
+
+# OS specific
+.DS_Store
+Thumbs.db

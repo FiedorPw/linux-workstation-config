@@ -1,0 +1,43 @@
+#!/bin/bash
+
+run_process(){
+  nohup $@ > /dev/null 2>&1 & disown
+}
+
+spawn_and_move_clockify(){
+  
+
+# Launch Firefox with Clockify and capture the PID
+#firefox-esr --new-window ttps://app.clockify.me/tracker &
+firefox-esr https://app.clockify.me/tracker &
+
+# Get the PID of the launched process
+firefox_pid=$!
+
+# Wait for the Firefox window to appear and get its window ID
+clockify_window=""
+while [ -z "$clockify_window" ]; do
+  clockify_window=$(wmctrl -lp | grep "$firefox_pid" | awk '{print $1}')
+  sleep 0.5
+done
+
+# Move the Clockify window to the second workspace (workspace 1)
+wmctrl -i -r "$clockify_window" -t 1
+
+echo "Clockify moved to workspace 1."
+
+}
+
+spawn_and_move_clockify
+
+wmctrl -s 0
+#odpal google keep
+#xdotool key ctrl+alt+k
+run_process  firefox-esr --new-window https://calendar.google.com/calendar/u/0/r
+
+sleep 2
+
+
+run_process chatgpt-desktop
+
+# trackPointSpeed 6 6

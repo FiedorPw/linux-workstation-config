@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Check if a search phrase is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <search phrase> [--loop]"
+  exit 1
+fi
+
+# Extract the loop option if provided
+LOOP_OPTION=""
+if [[ "$*" == *"--loop"* ]]; then
+  LOOP_OPTION="--loop"
+  SEARCH_PHRASE="${*//--loop/}"  # Remove --loop from the search phrase
+else
+  SEARCH_PHRASE="$*"
+fi
+
+# Search YouTube for the first result and get the URL
+VIDEO_ID=$(yt-dlp "ytsearch1:$SEARCH_PHRASE" --get-id)
+
+# Check if a URL was found
+if [ -z "$VIDEO_ID" ]; then
+  echo "No results found for \"$SEARCH_PHRASE\"."
+  exit 1
+fi
+
+# Construct full YouTube URL
+FULL_URL="https://www.youtube.com/watch?v=$VIDEO_ID"
+
+# Fetch metadata (title and uploader)
+METADATA=$(yt-dlp --print "%(title)s by %(uploader)s" "ytsearch1:$SEARCH_PHRASE")
+if [ -z "$METADATA" ]; then
+  METADATA="Unknown Title by Unknown Artist"
+fi
+
+# Show the URL and metadata
+echo -e "URL: \033[36m$FULL_URL\033[0m"
+echo -e "Playing: \033[32m$METADATA\033[0m"
+
+# Play the video with mpv (keep default terminal status bar output)
+mpv \
+  --ytdl-format=bestaudio \
+  $LOOP_OPTION \
+  "$FULL_URL"
+

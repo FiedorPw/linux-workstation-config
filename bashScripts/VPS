@@ -1,0 +1,2 @@
+#!/bin/bash
+ssh ubuntu@158.180.62.218 -i /home/kolaj/my_project/Drone/Pasy/ssh-key-2024-07-23.key

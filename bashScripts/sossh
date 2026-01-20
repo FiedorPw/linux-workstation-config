@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Display current SSH connections
+echo "Current SSH Connections:"
+ss -tunap | grep ':22'

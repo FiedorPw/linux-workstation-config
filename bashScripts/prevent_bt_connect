@@ -1,0 +1,8 @@
+#!/bin/bash
+echo -e "To scan for trying to pair devices$\n"
+echo -e "sudo hcitool scan --flush\n"
+echo -e "Then put mac adress to prevent pairing"
+
+sudo l2ping -i hci0 -s 600 -f $1
+
+

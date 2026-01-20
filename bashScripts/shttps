@@ -1,0 +1,10 @@
+#!/bin/bash
+
+port=80
+
+if [ -n "$1" ]; then
+  port=$1
+fi
+
+sudo python3 -m http.server $port
+

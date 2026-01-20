@@ -1,0 +1,26 @@
+
+#!/bin/bash
+
+# Check if both ports are provided as arguments, otherwise use default values
+if [ ! -z "$1" ]; then
+    SOURCE_PORT=$1
+fi
+
+if [ ! -z "$2" ]; then
+    DESTINATION_PORT=$2
+fi
+
+echo "Redirecting incoming and outgoing traffic from port $SOURCE_PORT to $DESTINATION_PORT"
+
+# Redirect incoming traffic from SOURCE_PORT to DESTINATION_PORT
+sudo iptables -t nat -A PREROUTING -p tcp --dport $SOURCE_PORT -j REDIRECT --to-port $DESTINATION_PORT
+sudo iptables -t nat -A PREROUTING -p udp --dport $SOURCE_PORT -j REDIRECT --to-port $DESTINATION_PORT
+
+# Redirect outgoing traffic from DESTINATION_PORT back to SOURCE_PORT
+sudo iptables -t nat -A OUTPUT -p tcp --dport $SOURCE_PORT -j REDIRECT --to-port $DESTINATION_PORT
+sudo iptables -t nat -A OUTPUT -p udp --dport $SOURCE_PORT -j REDIRECT --to-port $DESTINATION_PORT
+
+echo "Port redirection is now active."
+
+# Display the updated iptables rules
+sudo iptables -t nat -L -n -v

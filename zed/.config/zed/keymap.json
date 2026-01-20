@@ -1,0 +1,45 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      // "shift shift": "file_finder::Toggle"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-w": "pane::CloseActiveItem"
+    }
+  },
+
+  {
+    "context": "Editor && !menu",
+    "bindings": {
+      "ctrl-c": "editor::Copy", // vim default: return to normal mode
+      "ctrl-x": "editor::Cut", // vim default: decrement
+      "ctrl-v": "editor::Paste", // vim default: visual block mode
+      "ctrl-y": "editor::Undo", // vim default: line up
+      "ctrl-f": "buffer_search::Deploy", // vim default: page down
+      "ctrl-o": "workspace::Open", // vim default: go back
+      "ctrl-a": "editor::SelectAll", // vim default: increment
+      "ctrl-alt-up": "editor::AddSelectionAbove", // Insert cursor above
+      "ctrl-alt-down": "editor::AddSelectionBelow" // Insert cursor below
+    }
+  },
+  {
+    // Bind for using space to insert a space in normal mode
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      "space": ["workspace::SendKeystrokes", "i space escape"]
+      // "Ctrl-u": ["workspace::SendKeystrokes", "Ctrl-u "],
+      // "Ctrl-d": ["workspace::SendKeystrokes", "Ctrl-d z z"]
+    }
+  }
+]

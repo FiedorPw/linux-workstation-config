@@ -1,0 +1,35 @@
+# --- System & Core ---
+zsh
+git
+curl
+wget
+stow
+gcc
+make
+xinput
+xdotool
+grc
+htop
+btop
+ghostty
+
+# --- Modern CLI ---
+bat
+eza
+ripgrep
+fd-find
+fastfetch
+
+# --- Hacking & Network ---
+nmap
+# rustscan - install via cargo: cargo install rustscan
+wireshark
+
+# --- Programming ---
+python3
+python3-pip
+python3-virtualenv
+python3-pygments
+ruby
+pipx
+uv

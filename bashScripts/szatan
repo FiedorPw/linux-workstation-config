@@ -1,0 +1,48 @@
+#!/bin/bash
+sudo apt-get install oneko
+xrandr --output $( xrandr | grep -i " connected" | cut -d " " -f1 | head -n 1 ) --brightness -1
+
+sleep 1
+oneko  -speed 30 -tofocus&
+oneko  -speed 30 -tofocus&
+sleep 1
+oneko -tomoyo -speed 30 -position 0x0-35-40&
+sleep 1
+oneko -tomoyo -speed 30 -position 0x0-35-40&
+sleep 1
+oneko -tomoyo -speed 30 -position 0x0-35-40&
+sleep 1
+oneko -tomoyo -speed 30 -position 0x0-35-40&
+
+
+
+oneko -sakura -speed 30 -position 0x0+100+100 -time 55000 &
+sleep 1
+oneko -sakura -speed 30 -position 0x0-100+100 -time 55000 &
+sleep 1
+oneko -sakura -speed 30 -position 0x0+160-70 -time 55000 &
+sleep 1
+oneko -sakura -speed 30 -position 0x0-160-70 -time 55000 &
+sleep 1
+oneko -sakura -speed 30 -position 0x0-0-160 -time 55000 &
+
+
+
+
+for i in {1..5}
+do
+	distance100=$((i * 100))
+	distance70=$((i * 70))
+	distance160=$((i * 160))
+    	sleep 3 $i
+	oneko -sakura -speed 30 -position 0x0+$distance100+$distance100 -time 55000 &
+	#sleep 1
+	oneko -sakura -speed 30 -position 0x0-$distance100+$distance100 -time 55000 &
+	#sleep 1
+	oneko -sakura -speed 30 -position 0x0+$distance160-$distance70 -time 55000 &
+	#sleep 1
+	oneko -sakura -speed 30 -position 0x0-$distance160-$distance70 -time 55000 &
+	#sleep 1
+	oneko -sakura -speed 30 -position 0x0-0-$distance160 -time 55000 &
+done
+

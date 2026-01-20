@@ -1,0 +1,36 @@
+[/]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom7/']
+
+[custom-keybindings/custom0]
+command='ghostty-toggle'
+name='terminal'
+
+[custom-keybindings/custom1]
+command='sh -c "nautilus $HOME/Projects"'
+name='projects'
+
+[custom-keybindings/custom2]
+command='sh -c "nautilus $HOME"'
+name='home'
+
+[custom-keybindings/custom3]
+binding='<Control><Alt>c'
+command='firefox https://calendar.google.com/calendar/u/0/r'
+name='calendar'
+
+[custom-keybindings/custom4]
+command='sh -c "nautilus $HOME/Pictures/Screenshots"'
+name='screenshots'
+
+[custom-keybindings/custom5]
+binding='<Control><Alt>q'
+command='sluchawki'
+name='sluchawki'
+
+[custom-keybindings/custom6]
+command='sh -c "nautilus $HOME/Videos/Screencasts"'
+name='screencasts'
+
+[custom-keybindings/custom7]
+command='sh -c "nautilus $HOME/Downloads"'
+name='downloads'

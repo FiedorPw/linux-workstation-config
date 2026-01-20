@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd /home/kolaj/my_project/VPN
+
+sudo openvpn lab_DarkLord2137.ovpn

@@ -1,0 +1,8 @@
+#!/bin/bash
+gnome-terminal -e "bash -c htop;bash"
+gnome-terminal -e "bash -c donut;bash"
+gnome-terminal -e "bash -c cmatrix;bash"
+gnome-terminal -e "bash -c dupa;bash"
+open /home/kolaj/my_project
+
+exit
