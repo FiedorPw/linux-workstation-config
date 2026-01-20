@@ -1,5 +1,11 @@
 {
     "github.copilot.nextEditSuggestions.enabled": true,
     "workbench.colorTheme": "Better Solarized Dark",
-    "vim.useSystemClipboard": true
+    "vim.useSystemClipboard": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    }
 }
