@@ -1,0 +1,4 @@
+#!/bin/bash
+ssh-add ~/.ssh/digiocean
+# tailscale mesh vpn login
+ssh root@<YOUR_SERVER_HOSTNAME>

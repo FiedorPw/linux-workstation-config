@@ -1,13 +1,9 @@
 
+
 # fiedorowe
 #odpala grc
 [[ -s "/etc/grc.zsh" ]] && source /etc/grc.zsh
 
-# rusted config
-#alias ll='eza -lah --icons --git --group-directories-first'
-#alias ls='eza --icons --group-directories-first'
-#alias find='fd'
-#alias grep='rg'
 
 # SYSTEM & MONITORING
 # alias nf='fastfetch' # or macchina
@@ -17,11 +13,6 @@
 
 # NETWORK
 # alias nscan='rustscan -a'
-# alias ping='trip'    # Trippy
-# alias net='bandwhich' # Monitor bandwidth usage
-
-# EDITING
-# alias vim='hx'       # Helix
 
 # EXTRAS
 # alias cd='z'         # Zoxide: Smarter 'cd' that remembers where you go
@@ -32,6 +23,7 @@
 # Set icon theme silently (suppress output for p10k instant prompt)
 gsettings set org.gnome.desktop.interface icon-theme 'kora' 2>/dev/null &!
 bindkey '^X' create_completion
+alias python='uv run python'
 alias sudo='sudo '
 alias touchpad-on='xinput enable 10 & xinput enable 11'
 alias sc='systemctl'
@@ -39,7 +31,7 @@ alias wonsz='python'
 alias wonsz3='python3'
 alias o='open'
 alias op='open ./'
-alias nmap='rustscan'
+# alias nmap='rustscan'
 #zamiast grc nmap
 alias cat='bat'
 alias p='grc ifconfig'
@@ -50,6 +42,7 @@ alias hackmuza="coding hacking music connection lost"
 alias py='python'
 #alias htop="btop"
 alias aenv='source my_env_script'
+alias ff='fastfetch'
 
 
 export PATH=$PATH:$HOME/Projects/scripts:$HOME/.opam/default/bin:/usr/lib/postgresql/16/bin:$HOME/.dotnet:$HOME/.local/share/gem/ruby/3.3.0/bin
@@ -195,3 +188,21 @@ export NVM_DIR="$HOME/.nvm"
 
 # Created by `pipx` on 2024-10-23 14:23:46
 export PATH="$PATH:$HOME/.local/bin"
+
+
+# --- Copilot inline suggest (insert into command line) ---
+copilot_cmd_only() {
+  local out
+  out="$(copilot -p "Return ONLY a single shell command. You can add explanations inline with # after command. The output will be cut co don't use any multi line wrappers like '''bash or anything that ends with \n:  Task: $BUFFER" 2>/dev/null \
+    | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  if [[ -n "$out" ]]; then
+    BUFFER="$out"
+    CURSOR=${#BUFFER}
+  fi
+  zle redisplay
+}
+zle -N copilot_cmd_only
+bindkey '^f' copilot_cmd_only   # Ctrl+G
+
+# opencode
+export PATH=/home/fiedor/.opencode/bin:$PATH

@@ -1,5 +1,12 @@
+clipboard-paste-protection = false
 class = com.fiedor.Ghostty
 gtk-single-instance = true
+
+# wywalenie top baru
+window-decoration = none
+# nie potwierdzaj zamknięcia
+confirm-close-surface = false
+
 # --- colors (HackerGreen) ---
 foreground = #00FF00
 background = #000000
@@ -9,7 +16,7 @@ selection-background = #303030
 selection-foreground = #00FF00
 
 # ANSI 0–15
-palette = 0=#1F2229
+palette = 0=#808080
 palette = 1=#D41919
 palette = 2=#5EBDAB
 palette = 3=#FEA44C
@@ -29,7 +36,7 @@ palette = 15=#FFFFFF
 # --- font ---
 font-family = "JetBrainsMono Nerd Font"
 font-family = "Menlo"        # fallback
-font-size   = 12
+font-size   = 13
 
 # --- window look ---
 background-opacity = 0.92

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+log="$HOME/.cache/nautilus-ghostty-here.log"
+err="$HOME/.cache/nautilus-ghostty-here.err"
+
+uri="${NAUTILUS_SCRIPT_CURRENT_URI:-}"
+if [[ -n "$uri" ]]; then
+  path="$(python3 - <<'PY'
+import os, urllib.parse
+u = os.environ.get("NAUTILUS_SCRIPT_CURRENT_URI","")
+p = urllib.parse.urlparse(u)
+print(urllib.parse.unquote(p.path))
+PY
+)"
+else
+  path="$PWD"
+fi
+
+ghostty_bin="$(command -v ghostty || true)"
+
+{
+  echo "---- $(date -Is) ----"
+  echo "uri=$uri"
+  echo "pwd=$PWD"
+  echo "path=$path"
+  echo "ghostty_bin=$ghostty_bin"
+} >> "$log"
+
+# 1) Jeśli jest binarka w PATH – użyj jej
+if [[ -n "$ghostty_bin" ]]; then
+    /usr/bin/ghostty --class=com.mitchellh.ghostty --gtk-single-instance=false --working-directory="$path" >/dev/null 2>&1 &
+    disown
+  exit 0
+fi
+ghostty
+# 2) Fallback: uruchom przez .desktop (działa lepiej w GNOME)
+# znajdź ID: ls /usr/share/applications | grep -i ghostty
+# i wpisz je poniżej (bez .desktop)
+gtk-launch ghostty >>"$log" 2>>"$err" &
+disown

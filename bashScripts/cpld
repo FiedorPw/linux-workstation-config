@@ -1,31 +1,48 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Copy last N (by mtime) files from ~/Downloads to the current directory,
+# then print the destination path and the filenames (no full paths), one per line.
 
-# copy last n files from downloads to current folder 
+set -euo pipefail
 
-
-
-# Default value for n
 n=1
-
-# Check if user provided an argument for the number of files
-if [ $# -eq 1 ]; then
-    n=$1
+if [[ $# -eq 1 ]]; then
+  n="$1"
 fi
 
-# Get the path to the Downloads folder
+# Validate: positive integer
+if ! [[ "$n" =~ ^[0-9]+$ ]] || [[ "$n" -lt 1 ]]; then
+  echo "Usage: $(basename "$0") [N]   (N must be a positive integer)" >&2
+  exit 2
+fi
+
 downloads_dir="$HOME/Downloads"
-
-# Check if Downloads directory exists
-if [ ! -d "$downloads_dir" ]; then
-    echo "Downloads directory does not exist."
-    exit 1
+if [[ ! -d "$downloads_dir" ]]; then
+  echo "Downloads directory does not exist: $downloads_dir" >&2
+  exit 1
 fi
 
-# Find the last n files in the Downloads folder and copy them to the current directory
-find "$downloads_dir" -type f -printf '%T@ %p\n' | sort -n | tail -n "$n" | awk '{print $2}' | while read file; do
-    cp "$file" .
-    echo "Copied $file"
-done
+dest_dir="$PWD"   # PWD = Print Working Directory (current directory path)
 
-echo "Copied $n file(s)"
+# We'll collect just the filenames (basenames) to print after copying
+copied_names=()
 
+# Use NUL (\0) delimiters end-to-end to safely handle spaces/tabs/newlines in filenames.
+while IFS= read -r -d '' file; do
+  cp -- "$file" "$dest_dir"/
+  copied_names+=("$(basename -- "$file")")
+done < <(
+  find "$downloads_dir" -type f -printf '%T@ %p\0' \
+    | sort -zn \
+    | tail -z -n "$n" \
+    | cut -z -d ' ' -f2-
+)
+
+# Print summary: destination path, then each copied filename on its own line
+printf 'Copied to \033[34m%s\033[0m \033[31m%s\033[0m files:  \n'  "$dest_dir" "$n"
+printf '' "$dest_dir"
+printf '%s\n' "${copied_names[@]}"
+
+# Quick notes on the important bits:
+# - read -d '' reads up to NUL (null byte), so filenames can contain spaces/newlines safely.
+# - sort -z / tail -z / cut -z make those tools use NUL-terminated records instead of newlines.
+# - cp -- stops option parsing, so a filename starting with '-' isn’t treated as a flag.

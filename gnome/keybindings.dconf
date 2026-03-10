@@ -1,8 +1,12 @@
 [/]
-custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom7/']
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom6/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom7/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom8/']
+mic-mute=['<Super>m']
+next=['<Super>Page_Down']
+play=['<Super>space']
+previous=['<Super>Page_Up']
 
 [custom-keybindings/custom0]
-command='ghostty-toggle'
+command='/home/fiedor/Projects/scripts/ghostty-toggle'
 name='terminal'
 
 [custom-keybindings/custom1]
@@ -24,7 +28,7 @@ name='screenshots'
 
 [custom-keybindings/custom5]
 binding='<Control><Alt>q'
-command='sluchawki'
+command='/home/fiedor/Projects/config/bashScripts/sluchawki'
 name='sluchawki'
 
 [custom-keybindings/custom6]
@@ -34,3 +38,8 @@ name='screencasts'
 [custom-keybindings/custom7]
 command='sh -c "nautilus $HOME/Downloads"'
 name='downloads'
+
+[custom-keybindings/custom8]
+binding='Launch5'
+command='firefox -new-window app.clockify.me/tracker'
+name='clockify'

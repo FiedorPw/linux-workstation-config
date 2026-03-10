@@ -1,0 +1,24 @@
+#!/usr/bin/expect -f
+
+# Define variables - SET THESE BEFORE USE
+set user "YOUR_USER"              ;# Replace with your Raspberry Pi username
+set host "rpi-red"              ;# Replace with your Raspberry Pi IP address or hostname
+set password "YOUR_PASSWORD"      ;# Replace with your password
+
+# Start SSH session with X11 forwarding
+spawn ssh -X $user@$host
+expect "password:"
+send "$password\r"
+
+# Wait for the shell prompt
+# expect "$ "
+sleep 0.2
+# Change directory
+send "cd /home/KNR/KNR-dron/\r"
+
+# Keep the session open
+# send "/bin/zsh\r"
+
+# Interact with the session to prevent it from closing
+interact
+

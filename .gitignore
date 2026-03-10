@@ -25,3 +25,5 @@ secrets/
 # OS specific
 .DS_Store
 Thumbs.db
+bashScripts/speedtest
+bashScripts/KID

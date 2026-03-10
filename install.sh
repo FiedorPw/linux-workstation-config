@@ -229,6 +229,9 @@ if [[ "$OS" != "macos" ]]; then
 
     [[ -f "$DOTFILES_DIR/gnome/gnome-shell-extensions/gnome-extensions-settings.dconf" ]] && \
       dconf load /org/gnome/shell/extensions/ < "$DOTFILES_DIR/gnome/gnome-shell-extensions/gnome-extensions-settings.dconf"
+
+    [[ -f "$DOTFILES_DIR/gnome/wm-keybindings.dconf" ]] && \
+      dconf load /org/gnome/desktop/wm/keybindings/ < "$DOTFILES_DIR/gnome/wm-keybindings.dconf"
   fi
 
   echo "🔄 Applying Key Remapping..."
