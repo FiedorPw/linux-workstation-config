@@ -1,0 +1,3 @@
+#!/bin/bash
+ssh -i /home/fiedor/.ssh/bs -t 'falcon@100.67.156.116' 'cd ground-control-station && exec zsh'
+#ssh 'falcon@100.67.156.116' 'cd ground-control-station && exec bash'

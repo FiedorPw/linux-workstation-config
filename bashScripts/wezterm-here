@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Get the current Nautilus directory via D-Bus FileManager1 interface
+uri=$(gdbus call --session \
+  --dest org.freedesktop.FileManager1 \
+  --object-path /org/freedesktop/FileManager1 \
+  --method org.freedesktop.DBus.Properties.Get \
+  org.freedesktop.FileManager1 OpenLocations 2>/dev/null \
+  | grep -oP "file://[^'\"]*" | head -1 || true)
+
+if [[ -n "$uri" ]]; then
+  path=$(python3 -c "import urllib.parse; print(urllib.parse.unquote('${uri#file://}'))")
+else
+  path="$HOME"
+fi
+
+wezterm start --cwd "$path" &
+disown

@@ -6,8 +6,9 @@ wget
 stow
 gcc
 make
-xinput
-xdotool
+xclip
+# xinput - X11 only, skipped on Wayland/Asahi
+# xdotool - X11 only, skipped on Wayland/Asahi
 grc
 htop
 btop

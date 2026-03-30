@@ -69,6 +69,7 @@ install_gui_linux() {
     echo -e "\033[0;31m⚠️  Please install Visual Studio Code natively (not via Flatpak)\033[0m"
     flatpak install -y flathub md.obsidian.Obsidian
     flatpak install -y flathub com.jgraph.drawio.desktop
+    flatpak install -y flathub com.mattjakeman.ExtensionManager
   elif command -v snap >/dev/null 2>&1; then
     echo "📦 Installing GUI apps via Snap (VSCode, Obsidian, Draw.io)..."
     sudo snap install code --classic
@@ -119,7 +120,7 @@ case "$OS" in
     install_gui_linux
     install_kora_icons
     ;;
-  fedora)
+  fedora|fedora-asahi-remix)
     install_dnf
     install_gui_linux
     install_kora_icons
@@ -166,10 +167,13 @@ mkdir -p "$ZSH_CUSTOM/plugins" "$ZSH_CUSTOM/themes"
 echo "🔗 Linking Configurations..."
 mkdir -p "$HOME/.config"
 
-# Avoid blowing away a real .zshrc if it exists (only remove if not a symlink)
-if [[ -e "$HOME/.zshrc" && ! -L "$HOME/.zshrc" ]]; then
-  rm -f "$HOME/.zshrc"
-fi
+# Remove existing non-symlink configs so stow can link properly
+for target in "$HOME/.zshrc" "$HOME/.config/nvim" "$HOME/.config/ghostty/config" "$HOME/.config/zed" "$HOME/.config/Code" "$HOME/.config/run-or-raise"; do
+  if [[ -e "$target" && ! -L "$target" ]]; then
+    echo "   -> Backing up $target"
+    mv "$target" "${target}.backup.$(date +%s)"
+  fi
+done
 
 cd "$DOTFILES_DIR"
 stow -R zsh nvim ghostty zed code run-or-raise
@@ -197,6 +201,10 @@ if [[ "$OS" != "macos" ]]; then
   mkdir -p "$EXT_DIR"
   cp -R "$DOTFILES_DIR/gnome/gnome-shell-extensions/"* "$EXT_DIR/" || true
 
+  # Install run-or-raise from GNOME extensions
+  echo "   -> Installing run-or-raise extension..."
+  busctl --user call org.gnome.Shell.Extensions /org/gnome/Shell/Extensions org.gnome.Shell.Extensions InstallRemoteExtension s "run-or-raise@edvard.cz" 2>/dev/null || true
+
   # Enable GNOME extensions
   echo "   -> Enabling GNOME Shell extensions..."
   if command -v gnome-extensions >/dev/null 2>&1; then
@@ -206,6 +214,7 @@ if [[ "$OS" != "macos" ]]; then
         gnome-extensions enable "$ext_name" 2>/dev/null || true
       fi
     done
+    gnome-extensions enable "run-or-raise@edvard.cz" 2>/dev/null || true
   fi
 
   # Set Kora icons as default
@@ -241,6 +250,30 @@ fi
 if [[ "$OS" != "macos" ]]; then
   echo "installing nerd fonts"
   install_nerd_fonts_linux
+fi
+
+# --- 6. SET ZSH AS DEFAULT SHELL ---
+if [[ "$SHELL" != *"zsh"* ]]; then
+  echo "🐚 Setting Zsh as default shell..."
+  chsh -s "$(which zsh)"
+fi
+
+# --- 7. TOUCHPAD PALM REJECTION (Asahi/Mac) ---
+if [[ "$OS" == "fedora-asahi-remix" ]]; then
+  echo "🖐️ Configuring touchpad palm rejection for Asahi..."
+  gsettings set org.gnome.desktop.peripherals.touchpad disable-while-typing true 2>/dev/null || true
+  # Increase palm detection sensitivity via libinput quirk
+  sudo mkdir -p /etc/libinput
+  if [[ ! -f /etc/libinput/local-overrides.quirks ]]; then
+    sudo tee /etc/libinput/local-overrides.quirks > /dev/null <<'QUIRK'
+[Apple Touchpad]
+MatchUdevType=touchpad
+MatchDMIModalias=dmi:*svnApple*
+AttrPalmSizeThreshold=70
+AttrPalmPressureThreshold=200
+QUIRK
+    echo "   -> Palm rejection quirk installed"
+  fi
 fi
 
 echo "✅ Setup Complete! Please restart your session."

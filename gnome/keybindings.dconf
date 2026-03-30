@@ -40,6 +40,6 @@ command='sh -c "nautilus $HOME/Downloads"'
 name='downloads'
 
 [custom-keybindings/custom8]
-binding='Launch5'
+binding='XF86LaunchA'
 command='firefox -new-window app.clockify.me/tracker'
 name='clockify'

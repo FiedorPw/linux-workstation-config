@@ -39,10 +39,9 @@ font-family = "Menlo"        # fallback
 font-size   = 13
 
 # --- window look ---
-background-opacity = 0.92
-background-blur    = 18
-macos-titlebar-style = hidden
-# window-decoration = auto    # default; leave as-is
+background-opacity = 1
+unfocused-split-opacity = 1
+unfocused-split-fill = #000000
 
 # --- behavior ---
 # WezTerm uses lines; Ghostty uses bytes. ~8MB ≈ plenty for ~5k lines.
@@ -53,85 +52,22 @@ command = "/bin/zsh -l"
 
 #macos-option-as-alt = left
 # keybind = clear
-keybind = cmd+c=copy_to_clipboard
-keybind = cmd+v=paste_from_clipboard
-
-#keybind = alt+left=unbind
-#keybind = alt+right=unbind
-
-# make Option behave like Alt/Meta on macOS
-# macos-option-as-alt = true
-
-# send the standard readline “word” escapes
-macos-option-as-alt = left
-
-# Nuke any leftovers for these combos, then set exactly what we want
-
-# Send raw bytes for readline word jumps (ESC b / ESC f)
-# keybind = alt+left=text:\x1bb
-# keybind = alt+right=text:\x1bf
-# --- keybinds (WezTerm equivalents) ---
-keybind = cmd+t=new_tab
-keybind = cmd+w=close_tab
+# --- keybinds (Linux: physical Command → Alt via keyd) ---
+keybind = alt+c=copy_to_clipboard
+keybind = alt+v=paste_from_clipboard
+keybind = alt+t=new_tab
+keybind = alt+w=close_tab
 keybind = ctrl+shift+w=close_surface
-keybind = cmd+ctrl+f=toggle_fullscreen
+keybind = alt+ctrl+f=toggle_fullscreen
 
-# Pane splitting and closing (Ctrl+D split, Ctrl+W close)
+# Pane splitting
+keybind = alt+d=new_split:right
+keybind = alt+shift+d=new_split:down
 keybind = ctrl+d=new_split:right
 keybind = ctrl+shift+d=new_split:down
-keybind = ctrl+w=close_surface
 
-keybind = cmd+d=new_split:right
-keybind = cmd+shift+d=new_split:down
-# keybind = alt+left=esc:b
-# keybind = alt+right=esc:f
-# jumping stuff
+# Navigate splits
 keybind = ctrl+shift+left=goto_split:left
 keybind = ctrl+shift+right=goto_split:right
 keybind = ctrl+shift+up=goto_split:up
 keybind = ctrl+shift+down=goto_split:down
-
-
-# This is the configuration file for Ghostty.
-#
-# This template file has been automatically created at the following
-# path since Ghostty couldn't find any existing config files on your system:
-#
-#   /Users/mikolaj.fiedorczuk/Library/Application Support/com.mitchellh.ghostty/config
-#
-# The template does not set any default options, since Ghostty ships
-# with sensible defaults for all options. Users should only need to set
-# options that they want to change from the default.
-#
-# Run `ghostty +show-config --default --docs` to view a list of
-# all available config options and their default values.
-#
-# Additionally, each config option is also explained in detail
-# on Ghostty's website, at https://ghostty.org/docs/config.
-
-# Config syntax crash course
-# ==========================
-# # The config file consists of simple key-value pairs,
-# # separated by equals signs.
-# font-family = Iosevka
-# window-padding-x = 2
-#
-# # Spacing around the equals sign does not matter.
-# # All of these are identical:
-# key=value
-# key= value
-# key =value
-# key = value
-#
-# # Any line beginning with a # is a comment. It's not possible to put
-# # a comment after a config option, since it would be interpreted as a
-# # part of the value. For example, this will have a value of "#123abc":
-# background = #123abc
-#
-# # Empty values are used to reset config keys to default.
-# key =
-#
-# # Some config options have unique syntaxes for their value,
-# # which is explained in the docs for that config option.
-# # Just for example:
-# resize-overlay-duration = 4s 200ms
