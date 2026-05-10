@@ -32,9 +32,12 @@ MODEL_PATH = os.path.join(MODELS_DIR, "ggml-large-v3-turbo.bin")
 SAMPLE_RATE = 16000
 
 
+NOTIFY_ID = "8492"  # fixed ID so notifications replace each other
+
+
 def notify(title, body="", urgency="normal"):
     subprocess.Popen(
-        ["notify-send", "-u", urgency, "-a", "Push-to-Talk", title, body],
+        ["notify-send", "-r", NOTIFY_ID, "-u", urgency, "-a", "Push-to-Talk", title, body],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
 
@@ -102,7 +105,6 @@ class PushToTalk:
             self.rec_process.wait(timeout=5)
             self.rec_process = None
         print("Stopped. Transcribing...")
-        notify("Transcribing...", "Please wait")
 
         audio_path = self.tmp_file.name
         # Run transcription in a thread so we don't block key events
@@ -120,9 +122,9 @@ class PushToTalk:
             lines = [line.strip() for line in text.splitlines() if line.strip()]
             text = " ".join(lines)
             if text:
+                notify("Copied to clipboard", text[:200])
                 copy_to_clipboard(text)
                 print(f"Copied: {text}")
-                notify("Copied to clipboard", text[:200])
             else:
                 print("No speech detected")
                 notify("No speech detected", urgency="low")

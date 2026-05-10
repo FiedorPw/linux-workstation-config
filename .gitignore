@@ -17,6 +17,14 @@ zed/.config/zed/settings.json.local
 credentials/
 secrets/
 
+# Scripts with hardcoded passwords or sensitive IPs
+bashScripts/.env
+bashScripts/rpi-red
+bashScripts/digiocean
+bashScripts/digiocean-data
+bashScripts/KID
+bashScripts/speedtest
+
 # Cache and temp files
 .cache/
 *.log
@@ -25,7 +33,3 @@ secrets/
 # OS specific
 .DS_Store
 Thumbs.db
-bashScripts/speedtest
-bashScripts/KID
-bashScripts/rpi-red
-bashScripts/digiocean

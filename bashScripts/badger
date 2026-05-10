@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+
+# Load user, host and password from .env
+set envfile [file join [file dirname [info script]] .env]
+set fp [open $envfile r]
+while {[gets $fp line] >= 0} {
+    if {[regexp {^BADGER_USER="(.+)"$} $line -> val]} {
+        set user $val
+    }
+    if {[regexp {^BADGER_HOST="(.+)"$} $line -> val]} {
+        set host $val
+    }
+    if {[regexp {^BADGER_PASSWORD="(.+)"$} $line -> val]} {
+        set password $val
+    }
+}
+close $fp
+
+spawn ssh -X $user@$host
+expect "password:"
+send "$password\r"
+
+sleep 0.2
+
+interact

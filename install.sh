@@ -176,7 +176,7 @@ for target in "$HOME/.zshrc" "$HOME/.config/nvim" "$HOME/.config/ghostty/config"
 done
 
 cd "$DOTFILES_DIR"
-stow -R zsh nvim ghostty zed code run-or-raise
+stow -R zsh nvim ghostty zed code run-or-raise wezterm fastfetch
 
 # Install VS Code extensions
 echo "   -> Installing VS Code extensions..."
@@ -217,10 +217,10 @@ if [[ "$OS" != "macos" ]]; then
     gnome-extensions enable "run-or-raise@edvard.cz" 2>/dev/null || true
   fi
 
-  # Set Kora icons as default
-  echo "   -> Setting Kora icons as default..."
+  # Apply gsettings customizations
+  echo "   -> Applying gsettings (sound, appearance, touchpad, etc.)..."
   if command -v gsettings >/dev/null 2>&1; then
-    gsettings set org.gnome.desktop.interface icon-theme 'kora' 2>/dev/null || true
+    bash "$DOTFILES_DIR/gnome/gsettings.sh" || true
   fi
 
   # Set Projects folder icon

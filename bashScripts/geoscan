@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+GEOSCAN_DIR="$HOME/Projects/GeoScan"
+
+# Start wezterm with a new window and capture the pane ID
+pane_left=$(wezterm cli spawn --cwd "$GEOSCAN_DIR" -- zsh -lic "k -c; exec zsh")
+sleep 1
+
+# Split right half for frontend (bun run dev)
+pane_frontend=$(wezterm cli split-pane --right --percent 50 --pane-id "$pane_left" --cwd "$GEOSCAN_DIR/geoscan-frontend" -- zsh -l)
+sleep 0.5
+printf "bun run dev\r" | wezterm cli send-text --pane-id "$pane_frontend" --no-paste
+
+# Split frontend pane bottom for api (uvicorn)
+pane_api=$(wezterm cli split-pane --bottom --percent 50 --pane-id "$pane_frontend" --cwd "$GEOSCAN_DIR/geoscan-api" -- zsh -l)
+sleep 0.5
+printf "uv run uvicorn api.main:app --reload --host 0.0.0.0 --port 8080\r" | wezterm cli send-text --pane-id "$pane_api" --no-paste
+
+# Open Windsurf
+windsurf "$GEOSCAN_DIR" &

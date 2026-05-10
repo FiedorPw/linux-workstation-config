@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Start wezterm with "k" in the first pane and capture the pane ID
+pane_k=$(wezterm cli spawn -- zsh -ic "cd /home/fiedor/Projects/LyftaAir/multi_cam_ground_base && k -c; exec zsh")
+sleep 1
+
+# Load credentials
+source "$SCRIPTS_DIR/.env"
+
+# Split right half for badger
+pane_badger=$(wezterm cli split-pane --right --percent 50 --pane-id "$pane_k" -- zsh -l)
+sleep 0.5
+printf "sshpass -p '%s' ssh -X %s@%s\r" "$BADGER_PASSWORD" "$BADGER_USER" "$BADGER_HOST" | wezterm cli send-text --pane-id "$pane_badger" --no-paste
+
+# Split badger pane bottom for mole
+pane_mole=$(wezterm cli split-pane --bottom --percent 50 --pane-id "$pane_badger" -- zsh -l)
+sleep 0.5
+printf "sshpass -p '%s' ssh -X %s@%s\r" "$MOLE_PASSWORD" "$MOLE_USER" "$MOLE_HOST" | wezterm cli send-text --pane-id "$pane_mole" --no-paste

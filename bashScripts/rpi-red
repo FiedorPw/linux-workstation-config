@@ -1,9 +1,9 @@
 #!/usr/bin/expect -f
 
 # Define variables - SET THESE BEFORE USE
-set user "YOUR_USER"              ;# Replace with your Raspberry Pi username
+set user "fiedor"              ;# Replace with your Raspberry Pi username
 set host "rpi-red"              ;# Replace with your Raspberry Pi IP address or hostname
-set password "YOUR_PASSWORD"      ;# Replace with your password
+set password "rasberką"      ;# Replace with your password
 
 # Start SSH session with X11 forwarding
 spawn ssh -X $user@$host
