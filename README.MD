@@ -1,13 +1,13 @@
-# Fedora Dotfiles & Setup
+# Linux Workstation Dotfiles & Setup
 
-Automated Fedora Workstation setup with GNOME, Ghostty terminal, Neovim, and custom configurations. Uses GNU Stow for symlink management.
+Automated Linux workstation setup with GNOME, Ghostty/Wezterm terminals, Neovim, and custom configurations. Uses GNU Stow for symlink management. Supports Fedora (x86_64 & Asahi/Apple Silicon) and Ubuntu/Debian.
 
 ![Dotfiles Setup](image.png)
 
 ## 🚀 Quick Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Projects/config
+git clone --recurse-submodules https://github.com/FiedorPw/linux-workstation-config.git ~/Projects/config
 cd ~/Projects/config
 ./install.sh
 ```
@@ -18,9 +18,11 @@ Then **log out and log back in** to apply GNOME extensions and settings.
 
 ### 🖥️ Terminal & Shell
 - **Ghostty** - GPU-accelerated terminal with splits, tabs, HackerGreen theme, no title bar
+- **Wezterm** - Cross-platform terminal (used on Asahi/macOS), Lua-configurable
 - **Zsh** - Shell with Oh My Zsh framework
 - **Powerlevel10k** - Fast, customizable prompt theme
 - **Zsh Plugins** - autosuggestions, syntax-highlighting
+- **Fastfetch** - System info display
 - **Copilot CLI** - Inline shell command suggestions (`Ctrl+F`)
 
 ### 📝 Editors
@@ -36,10 +38,11 @@ Then **log out and log back in** to apply GNOME extensions and settings.
 - **Kora Icon Theme** - Beautiful icon set
 
 ### 🔧 System Configuration
-- **keyd** - Key remapping daemon (Home/End, PgUp/PgDn swap for ThinkPads)
+- **keyd** - Key remapping daemon (Home/End, PgUp/PgDn swap for ThinkPads & Mac keyboards)
 - **Package Lists** - DNF/APT packages for quick reinstall
 - **GNOME WM Keybindings** - Workspace switching, window management (dconf backup)
 - **GNOME Extensions Settings** - Full dconf dump of all extension configs (Astra Monitor, Alt-Tab, etc.)
+- **GNOME gsettings** - Additional GNOME settings export/restore script
 
 ### 🔤 Fonts
 - **MesloLGS NF** - Patched for Powerlevel10k
@@ -146,8 +149,9 @@ Essential productivity scripts linked to `~/Projects/scripts/`:
 | `live-server` | Start browser-sync dev server with live reload |
 | `redirect_ports` | Port forwarding utility |
 | `pull` / `push` | Quick git pull/push shortcuts |
-| `digiocean` / `digiocean-data` | SSH to DigitalOcean servers |
-| `rpi-generic` / `rpi-red` | SSH to Raspberry Pi boards (expect-based, auto-login) |
+| `digiocean` / `digiocean-data` | SSH to DigitalOcean servers (gitignored) |
+| `rpi-generic` / `rpi-red` | SSH to Raspberry Pi boards (expect-based, auto-login, gitignored) |
+| `badger` / `mole` / `multicam` | SSH to robotics platforms (credentials from .env) |
 
 **System & Hardware:**
 | Script | Description |
@@ -185,6 +189,9 @@ Uses [keyd](https://github.com/rvaiya/keyd) to remap keys for better ThinkPad ex
 
 Config: [scripts/keyd/default.conf](scripts/keyd/default.conf)
 
+### 📦 Submodules
+- **[linux-on-mac-vulcan-s2t-whisper-turbo](https://github.com/FiedorPw/linux-on-mac-vulcan-s2t-whisper-turbo)** - Vulkan-accelerated Whisper Turbo speech-to-text setup for Linux on Apple Silicon
+
 ## 📁 Structure
 
 ```
@@ -192,13 +199,17 @@ Config: [scripts/keyd/default.conf](scripts/keyd/default.conf)
 ├── install.sh           # Main installation script
 ├── bashScripts/         # Custom scripts (linked to ~/Projects/scripts)
 ├── code/                # VS Code settings & extensions
+├── fastfetch/           # Fastfetch config (.config/fastfetch)
 ├── ghostty/             # Terminal config (.config/ghostty)
-├── gnome/               # GNOME settings, extensions & dconf backups
+├── gnome/               # GNOME settings, extensions, dconf & gsettings backups
+├── keyd/                # Key remapping daemon config
 ├── nvim/                # Neovim configuration (.config/nvim)
 ├── run-or-raise/        # Run-or-raise shortcuts (.config/run-or-raise)
 ├── scripts/             # Package lists & utilities
+├── wezterm/             # Wezterm terminal config (.config/wezterm)
 ├── zed/                 # Zed editor config & themes (.config/zed)
-└── zsh/                 # Zsh + Oh My Zsh config
+├── zsh/                 # Zsh + Oh My Zsh config
+└── linux-on-mac-vulcan-s2t-whisper-turbo/  # (submodule) Whisper Turbo S2T
 ```
 
 ## 🎨 Customization
@@ -290,9 +301,10 @@ git pull
 ./install.sh
 ```
 
-## 📋 Supported Distributions
+## 📋 Supported Platforms
 
-- **Fedora** (primary target)
+- **Fedora x86_64** (primary target, ThinkPad)
+- **Fedora Asahi** (Apple Silicon Macs via Asahi Linux)
 - **Ubuntu/Debian/Pop!_OS**
 - **macOS** (partial support)
 
