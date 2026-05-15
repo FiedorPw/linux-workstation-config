@@ -10,6 +10,7 @@ DISABLE_AUTO_TITLE="true"
 COMPLETION_WAITING_DOTS="true"
 
 plugins=(
+    fzf-tab
     zsh-autosuggestions
     git
     zsh-syntax-highlighting
@@ -54,6 +55,7 @@ alias ff='fastfetch'
 alias wez='wezterm'
 alias nf='neofetch'
 alias k='claude --dangerously-skip-permissions'
+alias kk='ANTHROPIC_BASE_URL=http://100.89.86.29:11434 ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_API_KEY="" ANTHROPIC_DEFAULT_SONNET_MODEL=qwen3.5:27b claude --dangerously-skip-permissions'
 alias wonsz='python'
 alias wonsz3='python3'
 alias msf='sudo service postgresql start && msfconsole'

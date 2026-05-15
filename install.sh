@@ -160,6 +160,9 @@ mkdir -p "$ZSH_CUSTOM/plugins" "$ZSH_CUSTOM/themes"
 [[ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]] || \
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 
+[[ -d "$ZSH_CUSTOM/plugins/fzf-tab" ]] || \
+  git clone https://github.com/Aloxaf/fzf-tab "$ZSH_CUSTOM/plugins/fzf-tab"
+
 [[ -d "$ZSH_CUSTOM/themes/powerlevel10k" ]] || \
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
 
@@ -168,7 +171,7 @@ echo "🔗 Linking Configurations..."
 mkdir -p "$HOME/.config"
 
 # Remove existing non-symlink configs so stow can link properly
-for target in "$HOME/.zshrc" "$HOME/.config/nvim" "$HOME/.config/ghostty/config" "$HOME/.config/zed" "$HOME/.config/Code" "$HOME/.config/run-or-raise"; do
+for target in "$HOME/.zshrc" "$HOME/.config/nvim" "$HOME/.config/zed" "$HOME/.config/Code" "$HOME/.config/run-or-raise"; do
   if [[ -e "$target" && ! -L "$target" ]]; then
     echo "   -> Backing up $target"
     mv "$target" "${target}.backup.$(date +%s)"
@@ -176,7 +179,7 @@ for target in "$HOME/.zshrc" "$HOME/.config/nvim" "$HOME/.config/ghostty/config"
 done
 
 cd "$DOTFILES_DIR"
-stow -R zsh nvim ghostty zed code run-or-raise wezterm fastfetch
+stow -R zsh nvim zed code run-or-raise wezterm fastfetch
 
 # Install VS Code extensions
 echo "   -> Installing VS Code extensions..."
