@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+find_power_input() {
+	for label in /sys/class/hwmon/hwmon*/power*_label; do
+		[[ -r "$label" ]] || continue
+
+		if [[ "$(cat "$label")" == "Total System Power" ]]; then
+			local input="${label%_label}_input"
+			[[ -r "$input" ]] && printf '%s\n' "$input" && return
+		fi
+	done
+
+	for input in /sys/class/hwmon/hwmon*/power*_input /sys/class/power_supply/*/power_now; do
+		[[ -r "$input" ]] && printf '%s\n' "$input" && return
+	done
+}
+
+power_input="$(find_power_input)"
+
+if [[ -z "$power_input" ]]; then
+	echo "No power sensor found" >&2
+	exit 1
+fi
+
+watch -n1 "awk '{ printf \"%.1f W\\n\", \$1 / 1000000 }' '$power_input'"

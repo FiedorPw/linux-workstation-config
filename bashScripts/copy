@@ -1,2 +1,8 @@
 #!/bin/bash
-xclip -selection clipboard
+set -euo pipefail
+
+if [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v wl-copy >/dev/null 2>&1; then
+  exec wl-copy
+fi
+
+exec xclip -selection clipboard

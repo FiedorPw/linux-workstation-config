@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- shell
@@ -64,34 +65,15 @@ config.inactive_pane_hsb = {
   brightness = 0.4,
 }
 
--- Wayland clipboard via wl-copy/wl-paste (fixes persistent copy issues)
-local copy_action = wezterm.action_callback(function(window, pane)
-  local text = window:get_selection_text_for_pane(pane)
-  if text and text ~= "" then
-    local handle = io.popen("wl-copy", "w")
-    if handle then
-      handle:write(text)
-      handle:close()
-    end
-    window:toast_notification("wezterm", "Copied to clipboard", nil, 1500)
-  end
-end)
+-- Use WezTerm's native clipboard integration instead of shelling out to
+-- wl-copy/wl-paste from the GUI process.
+local copy_action = act.CopyTo("ClipboardAndPrimarySelection")
+local paste_action = act.PasteFrom("Clipboard")
 
-local paste_action = wezterm.action_callback(function(window, pane)
-  local handle = io.popen("wl-paste --no-newline 2>/dev/null")
-  if handle then
-    local text = handle:read("*a")
-    handle:close()
-    if text and text ~= "" then
-      pane:paste(text)
-    end
-  end
-end)
-
--- keybinds (physical Command = Alt via keyd)
+-- keybinds
 config.keys = {
-  { key = "c", mods = "ALT", action = copy_action },
-  { key = "v", mods = "ALT", action = paste_action },
+  { key = "C", mods = "CTRL", action = copy_action },
+  { key = "V", mods = "CTRL", action = paste_action },
   { key = "t", mods = "ALT", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
   { key = "w", mods = "ALT", action = wezterm.action.CloseCurrentTab({ confirm = false }) },
   { key = "f", mods = "ALT|CTRL", action = wezterm.action.ToggleFullScreen },

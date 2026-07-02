@@ -7,9 +7,13 @@ stow
 build-essential
 xinput
 xdg-utils
+xclip
+wl-clipboard
 grc
 htop
 btop
+stress-ng
+sshpass
 
 # --- Modern CLI (The Rizz) ---
 bat

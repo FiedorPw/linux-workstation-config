@@ -23,7 +23,7 @@ echo "🚀 Starting Installation for: $OS"
 install_apt() {
   echo "📦 Updating & Installing APT (Advanced Package Tool) packages..."
   sudo apt update
-  xargs -a "$DOTFILES_DIR/scripts/packages.apt.txt" sudo apt install -y
+  grep -vE "^\s*#|^\s*-|^\s*$" "$DOTFILES_DIR/scripts/packages.apt.txt" | xargs -r sudo apt install -y
 }
 
 install_dnf() {

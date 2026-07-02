@@ -7,12 +7,15 @@ stow
 gcc
 make
 xclip
+wl-clipboard
 # xinput - X11 only, skipped on Wayland/Asahi
 # xdotool - X11 only, skipped on Wayland/Asahi
 grc
 htop
 btop
 ghostty
+stress-ng
+sshpass
 
 # --- Modern CLI ---
 bat

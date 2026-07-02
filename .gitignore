@@ -10,6 +10,7 @@
 zed/.config/zed/settings.json.local
 
 # Personal tokens/credentials (never commit these)
+.env
 .github_token
 *.token
 *.key

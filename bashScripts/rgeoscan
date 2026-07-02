@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Remote GeoScan - opens wezterm panes with SSH to KID, same layout as local geoscan.
+# Uses sshpass for non-interactive auth, -t forces PTY allocation for interactive shells.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/.env"
+
+if [[ ! -f "$ENV_FILE" ]]; then
+	echo "Missing $ENV_FILE with KID_USER, KID_HOST, and KID_PASSWORD" >&2
+	exit 1
+fi
+
+source "$ENV_FILE"
+
+: "${KID_USER:?Missing KID_USER in $ENV_FILE}"
+: "${KID_HOST:?Missing KID_HOST in $ENV_FILE}"
+: "${KID_PASSWORD:?Missing KID_PASSWORD in $ENV_FILE}"
+
+REMOTE_GEOSCAN="~/Projects/GeoScan"
+export SSHPASS="$KID_PASSWORD"
+SSH_BASE=(sshpass -e ssh -o StrictHostKeyChecking=no -t "$KID_USER@$KID_HOST")
+
+# Pane 1 (left): claude in GeoScan dir
+pane_left=$(wezterm cli spawn -- "${SSH_BASE[@]}" "cd $REMOTE_GEOSCAN && claude")
+sleep 1
+
+# Pane 2 (right top): frontend dev server
+pane_frontend=$(wezterm cli split-pane --right --percent 50 --pane-id "$pane_left" -- "${SSH_BASE[@]}" "cd $REMOTE_GEOSCAN/geoscan-frontend && bun run dev")
+sleep 0.5
+
+# Pane 3 (right bottom): API server
+wezterm cli split-pane --bottom --percent 50 --pane-id "$pane_frontend" -- "${SSH_BASE[@]}" "cd $REMOTE_GEOSCAN/geoscan-api && uv run uvicorn api.main:app --reload --host 0.0.0.0 --port 8080"

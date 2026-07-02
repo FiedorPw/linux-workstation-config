@@ -17,5 +17,5 @@ pane_api=$(wezterm cli split-pane --bottom --percent 50 --pane-id "$pane_fronten
 sleep 0.5
 printf "uv run uvicorn api.main:app --reload --host 0.0.0.0 --port 8080\r" | wezterm cli send-text --pane-id "$pane_api" --no-paste
 
-# Open Windsurf
-windsurf "$GEOSCAN_DIR" &
+# Open Zed editor
+zed "$GEOSCAN_DIR" &
