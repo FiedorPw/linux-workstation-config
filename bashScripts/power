@@ -1,26 +1,195 @@
 #!/bin/bash
 set -euo pipefail
 
-find_power_input() {
+# power — live htop-style power monitor for Apple Silicon under Asahi Linux.
+#
+# Shows the whole power chain as colored meters refreshed 4x/second:
+#   PD contract limit -> AC input -> system draw -> battery charge/discharge,
+# plus a sparkline with recent system-power history.
+#
+# Reads macsmc battery/AC data from /sys/class/power_supply and the SMC
+# power sensors from /sys/class/hwmon.
+
+BAT=/sys/class/power_supply/macsmc-battery
+AC=/sys/class/power_supply/macsmc-ac
+
+INTERVAL=0.25
+HISTORY_SIZE=60 # sparkline samples kept (60 * 0.25s = 15s window)
+
+# ANSI colors (htop-ish)
+C_GREEN=$'\033[32m'
+C_YELLOW=$'\033[33m'
+C_RED=$'\033[31m'
+C_CYAN=$'\033[36m'
+C_DIM=$'\033[2m'
+C_BOLD=$'\033[1m'
+C_RST=$'\033[0m'
+
+# Locate hwmon power sensors by their human-readable label (paths vary per boot).
+find_sensor() {
+	local wanted="$1" label
 	for label in /sys/class/hwmon/hwmon*/power*_label; do
 		[[ -r "$label" ]] || continue
-
-		if [[ "$(cat "$label")" == "Total System Power" ]]; then
-			local input="${label%_label}_input"
-			[[ -r "$input" ]] && printf '%s\n' "$input" && return
+		if [[ "$(cat "$label")" == "$wanted" ]]; then
+			printf '%s\n' "${label%_label}_input"
+			return
 		fi
-	done
-
-	for input in /sys/class/hwmon/hwmon*/power*_input /sys/class/power_supply/*/power_now; do
-		[[ -r "$input" ]] && printf '%s\n' "$input" && return
 	done
 }
 
-power_input="$(find_power_input)"
+SYS_INPUT="$(find_sensor 'Total System Power')"
+AC_INPUT="$(find_sensor 'AC Input Power')"
 
-if [[ -z "$power_input" ]]; then
+if [[ -z "$SYS_INPUT" ]]; then
 	echo "No power sensor found" >&2
 	exit 1
 fi
 
-watch -n1 "awk '{ printf \"%.1f W\\n\", \$1 / 1000000 }' '$power_input'"
+# Read a sysfs value in microwatts; echoes 0 when unavailable.
+read_uw() {
+	local file="$1"
+	if [[ -n "$file" && -r "$file" ]]; then cat "$file"; else echo 0; fi
+}
+
+# Format microwatts as "NNN.N W".
+fmt_w() {
+	awk -v uw="$1" 'BEGIN { printf "%.1f W", uw / 1000000 }'
+}
+
+# Pick meter color by fill ratio, like htop: green -> yellow -> red.
+ratio_color() {
+	local val="$1" max="$2"
+	if ((max <= 0)); then printf '%s' "$C_GREEN"; return; fi
+	local pct=$((val * 100 / max))
+	if ((pct < 60)); then printf '%s' "$C_GREEN"
+	elif ((pct < 85)); then printf '%s' "$C_YELLOW"
+	else printf '%s' "$C_RED"; fi
+}
+
+# Pad a label to a fixed display width. Done by character count instead of
+# printf's %-Ns, which pads by BYTES and misaligns multibyte labels like "→".
+pad_label() {
+	local label="$1" width="$2"
+	while ((${#label} < width)); do label+=" "; done
+	printf '%s' "$label"
+}
+
+# Generic htop-style bar:  Label      [|||||||||........95.1 W]
+# Text is overlaid on the right end inside the bracket (htop does the same).
+# Args: label, filled count, width, fill char, empty char, color, text.
+draw_bar() {
+	local label="$1" filled="$2" width="$3" fill_ch="$4" empty_ch="$5" color="$6" text="$7"
+	local i bar="" tlen
+	((filled > width)) && filled=$width
+	((filled < 0)) && filled=0
+	for ((i = 0; i < width; i++)); do
+		if ((i < filled)); then bar+="$fill_ch"; else bar+="$empty_ch"; fi
+	done
+	tlen=${#text}
+	bar="${bar:0:$((width - tlen))}${text}"
+	# Color only the filled span; the rest stays dim.
+	printf '  %s [%s%s%s%s%s]\033[K\n' \
+		"$(pad_label "$label" 11)" \
+		"$color" "${bar:0:$filled}" "$C_RST$C_DIM" "${bar:$filled}" "$C_RST"
+}
+
+# Power meter scaled against max so all meters share one axis (the PD limit).
+meter() {
+	local label="$1" val="$2" max="$3" width="$4"
+	((max > 0)) || max=1
+	draw_bar "$label" $((val * width / max)) "$width" "|" " " \
+		"$(ratio_color "$val" "$max")" "$(fmt_w "$val")"
+}
+
+# Sparkline from space-separated uW samples, scaled to the largest sample.
+sparkline() {
+	local blocks=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█")
+	local max=1 s out="" idx
+	for s in $1; do ((s > max)) && max=$s; done
+	for s in $1; do
+		idx=$((s * 7 / max))
+		out+="${blocks[$idx]}"
+	done
+	printf '%s' "$out"
+}
+
+history=""
+
+render() {
+	local status capacity ac_online cols bar_width
+	status="$(cat "$BAT/status" 2>/dev/null || echo '-')"
+	capacity="$(cat "$BAT/capacity" 2>/dev/null || echo 0)"
+	ac_online="$(cat "$AC/online" 2>/dev/null || echo 0)"
+	cols="$(tput cols 2>/dev/null || echo 80)"
+	bar_width=$((cols - 20))
+	((bar_width > 50)) && bar_width=50
+	((bar_width < 20)) && bar_width=20
+
+	local pd_uw ac_uw sys_uw bat_uw
+	pd_uw="$(read_uw "$AC/input_power_limit")"
+	ac_uw="$(read_uw "$AC_INPUT")"
+	sys_uw="$(read_uw "$SYS_INPUT")"
+	bat_uw="$(read_uw "$BAT/power_now")"
+
+	# Shared meter axis: PD limit when plugged in, otherwise the history peak.
+	local axis=$pd_uw s
+	if [[ "$ac_online" != "1" || "$axis" -le 0 ]]; then
+		axis=$sys_uw
+		for s in $history; do ((s > axis)) && axis=$s; done
+	fi
+
+	printf '  %s⚡ power%s  %s%s%s\033[K\n' "$C_BOLD" "$C_RST" "$C_DIM" "$(date +%T)" "$C_RST"
+	printf '\033[K\n'
+
+	# Battery gauge, rendered inline like the power meters below: same width,
+	# same bracket column, "67% Charging" overlaid inside the bar.
+	local bat_color=$C_GREEN
+	((capacity < 20)) && bat_color=$C_RED
+	((capacity >= 20 && capacity < 40)) && bat_color=$C_YELLOW
+	draw_bar "Battery" $((capacity * bar_width / 100)) "$bar_width" "█" "░" \
+		"$bat_color" "${capacity}% ${status}"
+	printf '\033[K\n'
+
+	# Power chain meters, all on the same axis so proportions are visible.
+	if [[ "$ac_online" == "1" ]]; then
+		printf '  %-11s %s %s(USB-PD limit = 100%% of bars)%s\033[K\n' "PD contract" "$(fmt_w "$pd_uw")" "$C_DIM" "$C_RST"
+		meter "AC input" "$ac_uw" "$axis" "$bar_width"
+	else
+		printf '  %-11s %sunplugged%s\033[K\n' "AC" "$C_DIM" "$C_RST"
+	fi
+	meter "System" "$sys_uw" "$axis" "$bar_width"
+	case "$status" in
+		Charging) meter "→ battery" "$bat_uw" "$axis" "$bar_width" ;;
+		Discharging) meter "← battery" "$bat_uw" "$axis" "$bar_width" ;;
+		*) meter "Battery pwr" "$bat_uw" "$axis" "$bar_width" ;;
+	esac
+
+	# System power history sparkline (last HISTORY_SIZE samples).
+	printf '\033[K\n'
+	printf '  %sSystem power, last %ss%s\033[K\n' "$C_DIM" "$(awk -v n="$HISTORY_SIZE" -v i="$INTERVAL" 'BEGIN { printf "%.0f", n * i }')" "$C_RST"
+	printf '  %s%s%s\033[K\n' "$C_CYAN" "$(sparkline "$history")" "$C_RST"
+}
+
+# htop-style TUI: alternate screen buffer + hidden cursor. Each frame is
+# composed off-screen, then drawn with a single write starting at the home
+# position; \033[K per line overwrites leftovers, \033[J clears anything
+# below. No full-screen clear between frames = no flicker, no cursor dance.
+cleanup() {
+	tput cnorm 2>/dev/null || true # show cursor again
+	tput rmcup 2>/dev/null || true # leave alternate screen
+}
+tput smcup 2>/dev/null || true
+tput civis 2>/dev/null || true # hide cursor while running
+trap cleanup EXIT
+trap 'exit 0' INT TERM # make Ctrl+C / kill run the EXIT cleanup
+while true; do
+	# Track system power history for the sparkline (updated outside render,
+	# which runs in a subshell via command substitution).
+	history="$history $(read_uw "$SYS_INPUT")"
+	count=$(wc -w <<< "$history")
+	((count > HISTORY_SIZE)) && history="$(cut -d' ' -f$((count - HISTORY_SIZE + 1))- <<< "$history")"
+
+	frame="$(render)"
+	printf '\033[H%s\033[J' "$frame"
+	sleep "$INTERVAL"
+done
